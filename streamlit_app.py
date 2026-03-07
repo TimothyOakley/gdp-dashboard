@@ -15,19 +15,7 @@ st.set_page_config(
 
 st.title("🏘️ Property & Grants AI Platform")
 
-st.sidebar.title("Navigation")
-page = st.sidebar.radio(
-    "Choose a page",
-    [
-        "Australian Market",
-        "Suburb / Site Analyzer",
-        "AI Property Analysis",
-        "Singapore Grants",
-        "Grant Matcher",
-        "Documents",
-        "Roadmap",
-    ],
-)
+
 
 # -----------------------------
 # Australian market sample data
