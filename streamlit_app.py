@@ -102,6 +102,45 @@ if page == "Australian Market":
 
 elif page == "Suburb / Site Analyzer":
 
+    st.header("Suburb Investment Analyzer")
+
+    suburb = st.text_input("Enter suburb")
+    state = st.text_input("Enter state")
+    property_type = st.selectbox(
+        "Property type",
+        ["House", "Apartment", "Townhouse", "Development Site"]
+    )
+
+    if st.button("Analyze Investment Opportunity"):
+
+        prompt = f"""
+You are an Australian property market analyst.
+
+Provide an investment analysis for:
+
+Suburb: {suburb}
+State: {state}
+Property Type: {property_type}
+
+Include:
+- market outlook
+- population trends
+- supply risks
+- rental demand
+- development potential
+- major risks
+- investment summary
+
+Keep the analysis practical and investor focused.
+"""
+
+        result, error = run_ai(prompt)
+
+        if error:
+            st.error(error)
+        else:
+            st.write(result)
+
     st.header("Suburb / Site Analyzer")
 
     st.dataframe(site_data, use_container_width=True)
