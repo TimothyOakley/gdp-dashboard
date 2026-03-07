@@ -8,10 +8,6 @@ except Exception:
     OpenAI = None
 
 
-# ----------------------------
-# PAGE SETUP
-# ----------------------------
-
 st.set_page_config(
     page_title="Property & Grants AI Platform",
     page_icon="🏘️",
@@ -20,17 +16,13 @@ st.set_page_config(
 
 st.title("🏘️ Property & Grants AI Platform")
 
-
-# ----------------------------
-# SIDEBAR NAVIGATION
-# ----------------------------
-
 st.sidebar.title("Navigation")
 
 page = st.sidebar.radio(
     "Choose a page",
     [
         "Australian Market",
+        "Live Suburb Rankings",
         "Suburb Scoring",
         "Suburb / Site Analyzer",
         "AI Property Analysis",
@@ -40,11 +32,6 @@ page = st.sidebar.radio(
         "Roadmap"
     ]
 )
-
-
-# ----------------------------
-# SAMPLE DATA
-# ----------------------------
 
 market_data = pd.DataFrame(
     [
@@ -57,7 +44,6 @@ market_data = pd.DataFrame(
     columns=["Market", "State", "Theme", "Risk", "Score"]
 )
 
-
 site_data = pd.DataFrame(
     [
         ["Parramatta", "NSW", "Apartment", "Transit growth"],
@@ -68,7 +54,6 @@ site_data = pd.DataFrame(
     ],
     columns=["Suburb", "State", "Asset Type", "Opportunity"]
 )
-
 
 grants_data = pd.DataFrame(
     [
@@ -85,10 +70,29 @@ grants_data = pd.DataFrame(
     columns=["Grant", "Purpose"]
 )
 
-
-# ----------------------------
-# OPENAI HELPER
-# ----------------------------
+live_rankings = pd.DataFrame(
+    [
+        ["Perth", "WA", 92, 78, 62, 86, "Momentum + Yield"],
+        ["Brisbane", "QLD", 88, 74, 68, 82, "Growth"],
+        ["Adelaide", "SA", 76, 72, 80, 77, "Stable Growth"],
+        ["Sydney", "NSW", 70, 58, 66, 66, "Capital Preservation"],
+        ["Melbourne", "VIC", 68, 61, 72, 67, "Recovery"],
+        ["Gold Coast", "QLD", 73, 69, 55, 69, "Lifestyle + Yield"],
+        ["Geelong", "VIC", 71, 67, 70, 69, "Commuter Growth"],
+        ["Ipswich", "QLD", 79, 75, 63, 76, "Affordable Growth"],
+        ["Parramatta", "NSW", 74, 60, 64, 68, "Urban Renewal"],
+        ["Logan", "QLD", 81, 77, 61, 78, "Value + Demand"]
+    ],
+    columns=[
+        "Suburb",
+        "State",
+        "Growth Score",
+        "Yield Score",
+        "Risk Score",
+        "Overall Score",
+        "Theme"
+    ]
+)
 
 def get_api_key():
     try:
@@ -96,9 +100,7 @@ def get_api_key():
     except Exception:
         return os.getenv("OPENAI_API_KEY")
 
-
 def run_ai(prompt):
-
     api_key = get_api_key()
 
     if not api_key:
@@ -109,32 +111,47 @@ def run_ai(prompt):
 
     try:
         client = OpenAI(api_key=api_key)
-
         response = client.responses.create(
             model="gpt-4.1-mini",
             input=prompt
         )
-
         return response.output_text, None
-
     except Exception as e:
         return None, str(e)
 
-
-# ----------------------------
-# PAGES
-# ----------------------------
-
 if page == "Australian Market":
-
     st.header("Australian Property Market")
-
     st.dataframe(market_data, use_container_width=True)
 
+elif page == "Live Suburb Rankings":
+    st.header("Live Suburb Rankings")
+    st.write("Ranked starter view of Australian suburb and market opportunities.")
 
+    state_filter = st.selectbox(
+        "Filter by state",
+        ["All"] + sorted(live_rankings["State"].unique().tolist())
+    )
+
+    min_score = st.slider("Minimum overall score", 0, 100, 65)
+
+    filtered = live_rankings.copy()
+
+    if state_filter != "All":
+        filtered = filtered[filtered["State"] == state_filter]
+
+    filtered = filtered[filtered["Overall Score"] >= min_score]
+    filtered = filtered.sort_values("Overall Score", ascending=False)
+
+    st.dataframe(filtered, use_container_width=True, hide_index=True)
+
+    if not filtered.empty:
+        top = filtered.iloc[0]
+        st.subheader("Top Ranked Opportunity")
+        st.write(f"**{top['Suburb']}, {top['State']}**")
+        st.write(f"Theme: {top['Theme']}")
+        st.write(f"Overall Score: {top['Overall Score']}")
 
 elif page == "Suburb Scoring":
-
     st.header("Suburb Scoring")
 
     suburb_scores = pd.DataFrame(
@@ -150,10 +167,7 @@ elif page == "Suburb Scoring":
 
     st.dataframe(suburb_scores, use_container_width=True)
 
-
-
 elif page == "Suburb / Site Analyzer":
-
     st.header("Suburb Investment Analyzer")
 
     suburb = st.text_input("Enter suburb")
@@ -165,7 +179,6 @@ elif page == "Suburb / Site Analyzer":
     )
 
     if st.button("Analyze Investment Opportunity"):
-
         prompt = f"""
 You are an Australian property market analyst.
 
@@ -176,14 +189,13 @@ State: {state}
 Property Type: {property_type}
 
 Include:
-
-• market outlook  
-• population trends  
-• supply risks  
-• rental demand  
-• development potential  
-• major risks  
-• investment summary
+- market outlook
+- population trends
+- supply risks
+- rental demand
+- development potential
+- major risks
+- investment summary
 
 Keep the analysis practical and investor focused.
 """
@@ -196,19 +208,14 @@ Keep the analysis practical and investor focused.
             st.write(result)
 
     st.subheader("Sample Development Opportunities")
-
     st.dataframe(site_data, use_container_width=True)
 
-
-
 elif page == "AI Property Analysis":
-
     st.header("AI Property Analysis")
 
     query = st.text_input("Enter suburb or property question")
 
     if st.button("Run Analysis"):
-
         prompt = f"""
 You are an Australian property market expert.
 
@@ -217,12 +224,11 @@ Provide a professional investment analysis for:
 {query}
 
 Include:
-
-• outlook
-• opportunities
-• risks
-• rental market
-• investor recommendation
+- outlook
+- opportunities
+- risks
+- rental market
+- investor recommendation
 """
 
         result, error = run_ai(prompt)
@@ -232,18 +238,11 @@ Include:
         else:
             st.write(result)
 
-
-
 elif page == "Singapore Grants":
-
     st.header("Singapore IT & Digital Grants")
-
     st.dataframe(grants_data, use_container_width=True)
 
-
-
 elif page == "Grant Matcher":
-
     st.header("Grant Matcher")
 
     need = st.selectbox(
@@ -258,50 +257,37 @@ elif page == "Grant Matcher":
     )
 
     if st.button("Match Grants"):
-
         if need == "Buy software":
             st.write("Recommended: Productivity Solutions Grant (PSG)")
-
         elif need == "Custom digital project":
             st.write("Recommended: Enterprise Development Grant (EDG)")
-
         elif need == "Advanced digital integration":
             st.write("Recommended: Advanced Digital Solutions (ADS)")
-
         elif need == "Digital advisory":
             st.write("Recommended: CTO-as-a-Service")
-
         elif need == "Overseas expansion":
             st.write("Recommended: Market Readiness Assistance (MRA)")
 
-
-
 elif page == "Documents":
-
     st.header("Documents")
 
-    file = st.file_uploader(
-        "Upload report",
-        type=["pdf", "txt", "csv"]
-    )
+    file = st.file_uploader("Upload report", type=["pdf", "txt", "csv"])
 
     if file:
         st.success(f"Uploaded {file.name}")
 
-
-
 elif page == "Roadmap":
-
     st.header("Platform Roadmap")
 
     roadmap = pd.DataFrame(
         {
-            "Phase": ["1", "2", "3", "4"],
+            "Phase": ["1", "2", "3", "4", "5"],
             "Goal": [
                 "Property dashboard",
                 "AI suburb analysis",
                 "Singapore grants navigator",
-                "Document AI"
+                "Document AI",
+                "Live suburb rankings"
             ]
         }
     )
