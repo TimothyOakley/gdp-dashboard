@@ -69,7 +69,6 @@ grants_data = pd.DataFrame(
     columns=["Grant", "Purpose"]
 )
 
-# More realistic suburb factors
 suburb_factors = pd.DataFrame(
     [
         ["Perth", "WA", 9.2, 6.0, 1.4, 8.3, 7.8, 6.2, "Momentum + Yield"],
@@ -142,7 +141,7 @@ def score_suburbs(df, growth_w, yield_w, infra_w, pop_w, afford_w, vacancy_penal
 
 if page == "Australian Market":
     st.header("Australian Property Market")
-    st.dataframe(market_data, use_container_width=True)
+    st.dataframe(market_data, width="stretch")
 
 elif page == "Live Suburb Rankings":
     st.header("Live Suburb Rankings")
@@ -189,7 +188,7 @@ elif page == "Live Suburb Rankings":
                 "Theme"
             ]
         ],
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -212,7 +211,7 @@ elif page == "Suburb Scoring":
         suburb_scores[
             ["Suburb", "State", "Growth Score", "Yield Score", "Risk Score", "Overall Score", "Theme"]
         ],
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -257,7 +256,7 @@ Keep the analysis practical and investor focused.
             st.write(result)
 
     st.subheader("Sample Development Opportunities")
-    st.dataframe(site_data, use_container_width=True)
+    st.dataframe(site_data, width="stretch")
 
 elif page == "AI Property Analysis":
     st.header("AI Property Analysis")
@@ -289,7 +288,7 @@ Include:
 
 elif page == "Singapore Grants":
     st.header("Singapore IT & Digital Grants")
-    st.dataframe(grants_data, use_container_width=True)
+    st.dataframe(grants_data, width="stretch")
 
 elif page == "Grant Matcher":
     st.header("Grant Matcher")
@@ -341,4 +340,4 @@ elif page == "Roadmap":
         }
     )
 
-    st.dataframe(roadmap, use_container_width=True)
+    st.dataframe(roadmap, width="stretch")
